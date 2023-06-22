@@ -1,0 +1,500 @@
+openapi: 3.0.0
+paths:
+  /:
+    get:
+      operationId: AppController_getHello
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: string
+  /timetable:
+    get:
+      operationId: TimetableController_findAll
+      parameters:
+        - name: level
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: courseCode
+          required: false
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: title
+          required: false
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+      tags: &ref_0
+        - timetable
+  /timetable/cron/{start}:
+    options:
+      operationId: TimetableController_start
+      parameters:
+        - name: start
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: level
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: courseCode
+          required: false
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: title
+          required: false
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags: *ref_0
+  /courses:
+    post:
+      operationId: CoursesController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCourseDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+      tags: &ref_1
+        - courses
+    get:
+      operationId: CoursesController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+      tags: *ref_1
+  /courses/single/{id}:
+    get:
+      operationId: CoursesController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+      tags: *ref_1
+  /courses/search:
+    get:
+      operationId: CoursesController_search
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+      tags: *ref_1
+  /courses/{id}:
+    patch:
+      operationId: CoursesController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCourseDto'
+      responses:
+        '200':
+          description: ''
+      tags: *ref_1
+  /staff:
+    post:
+      operationId: StaffController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStaffDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+      tags: &ref_2
+        - staff
+    get:
+      operationId: StaffController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Staff'
+      tags: *ref_2
+  /staff/{id}:
+    get:
+      operationId: StaffController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+      tags: *ref_2
+    patch:
+      operationId: StaffController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStaffDto'
+      responses:
+        '200':
+          description: ''
+      tags: *ref_2
+  /allocations:
+    post:
+      operationId: AllocationsController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAllocationDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Allocation'
+      tags: &ref_3
+        - allocations
+    get:
+      operationId: AllocationsController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Allocation'
+      tags: *ref_3
+  /allocations/{id}:
+    get:
+      operationId: AllocationsController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Allocation'
+      tags: *ref_3
+    patch:
+      operationId: AllocationsController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAllocationDto'
+      responses:
+        '200':
+          description: ''
+      tags: *ref_3
+  /allocations/staff/{id}:
+    get:
+      operationId: AllocationsController_findByStaff
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Allocation'
+      tags: *ref_3
+  /allocations/course/{id}:
+    get:
+      operationId: AllocationsController_findByCourse
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Allocation'
+      tags: *ref_3
+info:
+  title: UG Examine
+  description: UG Examine API description
+  version: '1.0'
+  contact: {}
+tags:
+  - name: courses
+    description: ''
+  - name: staff
+    description: ''
+  - name: allocations
+    description: ''
+  - name: timetable
+    description: ''
+servers: []
+components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+  schemas:
+    CreateCourseDto:
+      type: object
+      properties:
+        code:
+          type: string
+        campus:
+          type: string
+          enum:
+            - legon
+            - accra
+            - distance
+      required:
+        - code
+        - campus
+    Course:
+      type: object
+      properties:
+        id:
+          type: string
+        code:
+          type: string
+        campus:
+          enum:
+            - legon
+            - accra
+            - distance
+          type: string
+      required:
+        - id
+        - code
+        - campus
+    UpdateCourseDto:
+      type: object
+      properties: {}
+    CreateStaffDto:
+      type: object
+      properties:
+        id:
+          type: string
+        surname:
+          type: string
+        othername:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        department:
+          type: string
+      required:
+        - id
+        - surname
+        - othername
+        - email
+        - phone
+        - department
+    Staff:
+      type: object
+      properties:
+        id:
+          type: string
+        surname:
+          type: string
+        othername:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        department:
+          type: string
+      required:
+        - id
+        - surname
+        - othername
+        - email
+        - phone
+        - department
+    UpdateStaffDto:
+      type: object
+      properties: {}
+    CreateAllocationDto:
+      type: object
+      properties:
+        staffId:
+          type: string
+        courseId:
+          type: string
+        description:
+          type: string
+        year:
+          type: number
+        noStudents:
+          type: number
+        modeOfExams:
+          type: string
+          enum:
+            - WRITTEN
+            - ONLINE ONSITE
+            - ONLINE
+        semmester:
+          type: number
+          enum:
+            - 1
+            - 2
+      required:
+        - staffId
+        - courseId
+        - description
+        - year
+        - semmester
+    Allocation:
+      type: object
+      properties:
+        id:
+          type: string
+        course:
+          type: string
+        staff:
+          type: string
+        description:
+          type: string
+        year:
+          type: number
+        noStudents:
+          type: number
+        semmester:
+          enum:
+            - 1
+            - 2
+          type: number
+        modeofExam:
+          enum:
+            - WRITTEN
+            - ONLINE ONSITE
+            - ONLINE
+          type: string
+      required:
+        - id
+        - course
+        - staff
+        - description
+        - year
+        - noStudents
+        - semmester
+        - modeofExam
+    UpdateAllocationDto:
+      type: object
+      properties: {}
