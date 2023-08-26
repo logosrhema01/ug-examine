@@ -1,7 +1,9 @@
 import {
   BadRequestException,
   ConflictException,
+  Inject,
   Injectable,
+  forwardRef,
 } from '@nestjs/common';
 import { CreateAllocationDto } from './dto/create-allocation.dto';
 import { UpdateAllocationDto } from './dto/update-allocation.dto';
@@ -14,6 +16,7 @@ import { Staff } from 'src/staff/entities/staff.entity';
 import { Course } from 'src/courses/entities/course.entity';
 import { TimetableService } from 'src/timetable/timetable.service';
 import { ExamType } from 'src/timetable/entities/timetable.entity';
+import { ParsedScrapedExamData } from 'src/timetable/dto/scraper.dto';
 
 @Injectable()
 export class AllocationsService {
@@ -22,6 +25,7 @@ export class AllocationsService {
     private readonly _allocationRepository: Repository<Allocation>,
     private readonly _staffService: StaffService,
     private readonly _coursesService: CoursesService,
+    @Inject(forwardRef(() => TimetableService))
     private readonly _timetableService: TimetableService,
   ) {}
   async create(createAllocationDto: CreateAllocationDto) {
@@ -48,12 +52,38 @@ export class AllocationsService {
       staff: staffExists.id,
       course: courseExists.id,
       description: createAllocationDto.description,
+      year: createAllocationDto.year,
+      semmester: createAllocationDto.semmester,
     });
     return await this._allocationRepository.save(allocation);
   }
 
+  async findOneCourse(courseId: string) {
+    return await this._coursesService.findOneById(courseId);
+  }
+
+  async findOneStaff(staffId: string) {
+    return await this._staffService.findOne(staffId);
+  }
+
   findAll() {
-    return this._allocationRepository.find();
+    return this._allocationRepository.find().then((allocations) => {
+      return Promise.all(
+        allocations.map(async (allocation) => {
+          const staff = await this._staffService.findOne(allocation.staff);
+          const course = await this._coursesService.findOneById(
+            allocation.course,
+          );
+          return {
+            ...allocation,
+            course: course.code,
+            staffId: staff.id,
+            staffSurname: staff.surname,
+            staffOthername: staff.othername,
+          };
+        }),
+      );
+    });
   }
 
   findOne(id: string) {
@@ -79,6 +109,57 @@ export class AllocationsService {
     });
   }
 
+  async courseStaffAllocationData(exam: ParsedScrapedExamData): Promise<
+    {
+      staff: Staff;
+      course: string;
+      mode: string;
+      venue: string;
+      date: string;
+      time: string;
+      examType: ExamType;
+    }[]
+  > {
+    const course = await this._coursesService.search({
+      code: exam.courseCode,
+      campus: exam.campus,
+    });
+
+    if (!course) {
+      return [];
+    }
+
+    const allocations = [];
+
+    const allocation = await this._allocationRepository.find({
+      where: {
+        course: course[0].id,
+        year: this.getYear(exam.date),
+      },
+    });
+    if (!allocation) throw new BadRequestException('Course has no allocation');
+    allocations.push(...allocation);
+
+    const result = [];
+
+    for (const allocation of allocations) {
+      const staff: Omit<Staff, 'id'> = await this._staffService.findOne(
+        allocation.staff,
+      );
+      result.push({
+        staff,
+        course: course[0].code,
+        mode: exam.mode,
+        venue: exam.venue,
+        date: exam.date,
+        time: exam.time,
+        examType: exam.examType,
+      });
+    }
+
+    return result;
+  }
+
   async update(id: string, updateAllocationDto: UpdateAllocationDto) {
     let staffExists: Staff;
     let courseExists: Course;
@@ -98,8 +179,8 @@ export class AllocationsService {
         throw new BadRequestException('Course does not exist');
       }
     }
-    //[x]: If exam date is past but user is trying to update noOfStudents, Return BadRequest
     if (updateAllocationDto.noStudents) {
+      //TODO: NoOf Students can be changed once, will be update after exam
       const exam = await this._timetableService.findOne({
         courseCode: courseExists.code,
         examType: ExamType.MAIN,
@@ -124,5 +205,10 @@ export class AllocationsService {
 
   remove(id: string) {
     return this._allocationRepository.delete({ id });
+  }
+
+  private getYear(date: string | Date): number {
+    date = new Date(date);
+    return date.getFullYear();
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { CronExpression, SchedulerRegistry } from '@nestjs/schedule';
+import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
 import { ParsedScrapedExamData, RawScrapedData } from './dto/scraper.dto';
 import { ExamType, ModeOfExam, TimeTable } from './entities/timetable.entity';
@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Campus } from 'src/courses/entities/course.entity';
 import { FetchTimeTableFilter } from './dto/create-timetable.dto';
+import { NotifyService } from 'src/timetable/notify.service';
 
 @Injectable()
 export class TimetableService {
@@ -16,15 +17,14 @@ export class TimetableService {
   private readonly CRON_NAME = 'fetch-time-table';
   private readonly DEFAULT_TIME_TABLE_URL =
     'https://sts.ug.edu.gh/timetable/generateschedule';
-  private readonly DEFAULT_TIME_TABLE_COURSES = ['DCIT'];
-  // [x]: Add filter for days, year, level,
-  // [x]: Update for next days and not previous days
+  private readonly DEFAULT_TIME_TABLE_COURSES = [];
   private readonly CRON_LIVE = process.env.CRON_LIVE === 'true' ? true : false;
 
   constructor(
     private schedulerRegistry: SchedulerRegistry,
     @InjectRepository(TimeTable)
     private readonly _timetableRepostiry: Repository<TimeTable>,
+    private _notifyService: NotifyService,
   ) {}
 
   async findOne({
@@ -43,18 +43,33 @@ export class TimetableService {
     });
   }
 
+  async findAll() {
+    return await this._timetableRepostiry.find();
+  }
+
   async fetchTimeTable(
     query?: FetchTimeTableFilter,
     url = this.DEFAULT_TIME_TABLE_URL,
   ) {
     const courses = query.courseCode || this.DEFAULT_TIME_TABLE_COURSES;
     const results: ParsedScrapedExamData[] = [];
-    const exams = courses.map((course) => {
-      return this._fetchTimeTable(
-        `${url}?course_code=${course}&level=${query.level}&title=${query.title}`,
-        !!query.dates ? this._getDates(query.dates) : undefined,
-      );
-    });
+    let exams = [];
+
+    if (courses.length === 0) {
+      exams = [
+        this._fetchTimeTable(
+          `${url}?level=${query.level}&title=${query.title}`,
+          !!query.dates ? this._getDates(query.dates) : undefined,
+        ),
+      ];
+    } else {
+      exams = courses.map((course) => {
+        return this._fetchTimeTable(
+          `${url}?course_code=${course}&level=${query.level}&title=${query.title}`,
+          !!query.dates ? this._getDates(query.dates) : undefined,
+        );
+      });
+    }
     try {
       const settled = await Promise.all(exams);
       results.push(...settled.flat());
@@ -66,13 +81,23 @@ export class TimetableService {
     }
   }
 
+  // For testing notifictions only
+  // @Cron(CronExpression.EVERY_MINUTE)
+  // async notifyStaff() {
+  //   console.log('Notifying staff');
+  //   // Get all exams for today
+  //   const exams = await this._timetableRepostiry.find({});
+  //   // Notify staff
+  //   await this._notifyService.notifyStaff(exams[30]);
+  // }
+
   start(start: boolean, query?: FetchTimeTableFilter) {
     // This would set the CRON job to run or stop
     if (start) {
       try {
         this._logger.verbose('Starting CRON job');
         const job = new CronJob(
-          CronExpression.EVERY_DAY_AT_5AM,
+          CronExpression.EVERY_30_SECONDS,
           () => {
             this._logger.verbose('Running CRON job');
             this.updateExams({
@@ -106,12 +131,19 @@ export class TimetableService {
 
   async updateExams(filter: { url: string; courses: string[] }) {
     this._logger.verbose('Updating exams');
-    const exams = filter.courses.map((course) => {
-      return this._fetchTimeTable(
-        `${filter.url}&course_code=${course}`,
-        this._getTodayAndTomorrow(),
-      );
-    });
+    let exams = [];
+    if (filter.courses.length === 0) {
+      exams = [
+        this._fetchTimeTable(`${filter.url}`, this._getTodayAndTomorrow()),
+      ];
+    } else {
+      exams = filter.courses.map((course) => {
+        return this._fetchTimeTable(
+          `${filter.url}&course_code=${course}`,
+          this._getTodayAndTomorrow(),
+        );
+      });
+    }
     const results: ParsedScrapedExamData[] = [];
     try {
       const settled = await Promise.all(exams);
@@ -148,7 +180,8 @@ export class TimetableService {
             examExists.mode !== exam.mode)
         ) {
           await this._timetableRepostiry.update(examExists.id, exam);
-        } else {
+          this._notifyService.notifyStaff(exam);
+        } else if (!examExists) {
           // Create new exam
           const timetable = new TimeTable();
           timetable.id = [exam.courseCode, exam.examType, exam.campus].join(
@@ -164,6 +197,7 @@ export class TimetableService {
           timetable.courseTitle = exam.courseTitle;
 
           await this._timetableRepostiry.save(timetable);
+          this._notifyService.notifyStaff(exam);
         }
       }
       return results;
@@ -174,11 +208,12 @@ export class TimetableService {
   }
 
   private async _fetchTimeTable(url: string, dates: Date[]) {
-    let data: RawScrapedData[];
+    let data: RawScrapedData[] = [];
     if (!!dates) {
+      //TODO: Use range of days
       for (const date of dates) {
         const fetchDay = await this._scrapeSite(
-          `${url}&exam_date=${date.toLocaleDateString('fr-CA')}`,
+          `${url}&exam_date=${date.toLocaleDateString('en-US')}`,
         );
         data.push(...fetchDay);
       }
@@ -273,6 +308,8 @@ export class TimetableService {
   }
 
   private async _scrapeSite(url: string): Promise<RawScrapedData[]> {
+    // remove all undefined variables from url
+    url = url.replace(/undefined/g, '');
     const response = await axios.get(url);
     const pagination = load(response.data);
 

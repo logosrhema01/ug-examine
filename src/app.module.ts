@@ -15,10 +15,13 @@
  *  - Courses CRUD done
  *  - Staff CRUD done
  *  - Allocate staff to courses CRUD done
- *  - Send notification to staff when timetable is changed, send schedule for the day and 3 days ahead with starter and stopper, send notification when allocation is changed, send manually
+ *  - Send notification (NNotifier, Email) to staff when timetable is changed, send schedule for the day and 2 days ahead with starter and stopper, send notification when allocation is changed, send manually
+ *  - Payment System for SMS, WA subscription
+ *  - Tickets for students
  *  - Add authentication with roles
  *  - Allow admin to upload courses, staff and assignments
  *  - Allow admin to upload attendance * (should they upload the attendance list or just the number of students who attended?)
+ *  - NNotifier
  *
  */
 import { Module } from '@nestjs/common';
@@ -30,6 +33,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoursesModule } from './courses/courses.module';
 import { StaffModule } from './staff/staff.module';
 import { AllocationsModule } from './allocations/allocations.module';
+import { TicketsModule } from './tickets/tickets.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { CaslModule } from './casl/casl.module';
+import { AdminUserInitializer } from './admin-user-initializer.provider';
 
 @Module({
   imports: [
@@ -41,11 +49,15 @@ import { AllocationsModule } from './allocations/allocations.module';
       synchronize: true,
       autoLoadEntities: true,
     }),
+    CaslModule,
     CoursesModule,
     StaffModule,
     AllocationsModule,
+    TicketsModule,
+    AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AdminUserInitializer],
 })
 export class AppModule {}

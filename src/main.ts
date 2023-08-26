@@ -7,6 +7,10 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.enableCors({
+    origin: '*',
+  });
   const config = new DocumentBuilder()
     .setTitle('UG Examine')
     .setDescription('UG Examine API description')
@@ -14,6 +18,8 @@ async function bootstrap() {
     .addTag('staff')
     .addTag('allocations')
     .addTag('timetable')
+    .addTag('auth')
+    .addTag('tickets')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
@@ -28,6 +34,6 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document, {
     urls: [{ url: 'http://localhost:3000', name: 'Local' }],
   });
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 8080);
 }
 bootstrap();

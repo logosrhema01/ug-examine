@@ -43,6 +43,8 @@ paths:
                   type: object
       tags: &ref_0
         - timetable
+      security: &ref_1
+        - Authorization: []
   /timetable/cron/{start}:
     options:
       operationId: TimetableController_start
@@ -73,155 +75,7 @@ paths:
         '200':
           description: ''
       tags: *ref_0
-  /courses:
-    post:
-      operationId: CoursesController_create
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateCourseDto'
-      responses:
-        '201':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Course'
-      tags: &ref_1
-        - courses
-    get:
-      operationId: CoursesController_findAll
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Course'
-      tags: *ref_1
-  /courses/single/{id}:
-    get:
-      operationId: CoursesController_findOne
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Course'
-      tags: *ref_1
-  /courses/search:
-    get:
-      operationId: CoursesController_search
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Course'
-      tags: *ref_1
-  /courses/{id}:
-    patch:
-      operationId: CoursesController_update
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateCourseDto'
-      responses:
-        '200':
-          description: ''
-      tags: *ref_1
-  /staff:
-    post:
-      operationId: StaffController_create
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateStaffDto'
-      responses:
-        '201':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Staff'
-      tags: &ref_2
-        - staff
-    get:
-      operationId: StaffController_findAll
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Staff'
-      tags: *ref_2
-  /staff/{id}:
-    get:
-      operationId: StaffController_findOne
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Staff'
-      tags: *ref_2
-    patch:
-      operationId: StaffController_update
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateStaffDto'
-      responses:
-        '200':
-          description: ''
-      tags: *ref_2
+      security: *ref_1
   /allocations:
     post:
       operationId: AllocationsController_create
@@ -239,21 +93,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Allocation'
-      tags: &ref_3
+      tags: &ref_2
         - allocations
+      security: &ref_3
+        - Authorization: []
     get:
       operationId: AllocationsController_findAll
       parameters: []
       responses:
         '200':
           description: ''
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Allocation'
-      tags: *ref_3
+      tags: *ref_2
+      security: *ref_3
   /allocations/{id}:
     get:
       operationId: AllocationsController_findOne
@@ -270,7 +121,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Allocation'
-      tags: *ref_3
+      tags: *ref_2
+      security: *ref_3
     patch:
       operationId: AllocationsController_update
       parameters:
@@ -288,7 +140,8 @@ paths:
       responses:
         '200':
           description: ''
-      tags: *ref_3
+      tags: *ref_2
+      security: *ref_3
   /allocations/staff/{id}:
     get:
       operationId: AllocationsController_findByStaff
@@ -307,7 +160,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Allocation'
-      tags: *ref_3
+      tags: *ref_2
+      security: *ref_3
   /allocations/course/{id}:
     get:
       operationId: AllocationsController_findByCourse
@@ -326,7 +180,390 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Allocation'
-      tags: *ref_3
+      tags: *ref_2
+      security: *ref_3
+  /staff:
+    post:
+      operationId: StaffController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStaffDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+      tags: &ref_4
+        - staff
+      security: &ref_5
+        - Authorization: []
+    get:
+      operationId: StaffController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Staff'
+      tags: *ref_4
+      security: *ref_5
+  /staff/{id}:
+    get:
+      operationId: StaffController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+      tags: *ref_4
+      security: *ref_5
+    patch:
+      operationId: StaffController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStaffDto'
+      responses:
+        '200':
+          description: ''
+      tags: *ref_4
+      security: *ref_5
+  /courses:
+    post:
+      operationId: CoursesController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCourseDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+      tags: &ref_6
+        - courses
+      security: &ref_7
+        - Authorization: []
+    get:
+      operationId: CoursesController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+      tags: *ref_6
+      security: *ref_7
+  /courses/single/{id}:
+    get:
+      operationId: CoursesController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+      tags: *ref_6
+      security: *ref_7
+  /courses/search:
+    get:
+      operationId: CoursesController_search
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+      tags: *ref_6
+      security: *ref_7
+  /courses/{id}:
+    patch:
+      operationId: CoursesController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCourseDto'
+      responses:
+        '200':
+          description: ''
+      tags: *ref_6
+      security: *ref_7
+  /tickets:
+    post:
+      operationId: TicketsController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTicketDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+      tags: &ref_8
+        - tickets
+      security: &ref_9
+        - Authorization: []
+    get:
+      operationId: TicketsController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+      tags: *ref_8
+      security: *ref_9
+  /tickets/{id}:
+    get:
+      operationId: TicketsController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+      tags: *ref_8
+      security: *ref_9
+    patch:
+      operationId: TicketsController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTicketDto'
+      responses:
+        '200':
+          description: ''
+      tags: *ref_8
+      security: *ref_9
+    delete:
+      operationId: TicketsController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags: *ref_8
+      security: *ref_9
+  /auth/login:
+    post:
+      operationId: AuthController_signIn
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignInDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+      tags: &ref_10
+        - auth
+  /auth/register:
+    post:
+      operationId: AuthController_signUp
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      tags: *ref_10
+  /auth/create_admin:
+    post:
+      operationId: AuthController_createAdmin
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      tags: *ref_10
+      security:
+        - Authorization: []
+  /auth/users:
+    get:
+      operationId: AuthController_getAllUsers
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+      tags: *ref_10
+      security:
+        - Authorization: []
+  /auth/users/{id}:
+    get:
+      operationId: AuthController_getUser
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      tags: *ref_10
+      security:
+        - Authorization: []
+    put:
+      operationId: AuthController_updateUser
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+      tags: *ref_10
+      security:
+        - Authorization: []
+    delete:
+      operationId: AuthController_deleteUser
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+      tags: *ref_10
+      security:
+        - Authorization: []
 info:
   title: UG Examine
   description: UG Examine API description
@@ -341,6 +578,10 @@ tags:
     description: ''
   - name: timetable
     description: ''
+  - name: auth
+    description: ''
+  - name: tickets
+    description: ''
 servers: []
 components:
   securitySchemes:
@@ -349,87 +590,6 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
-    CreateCourseDto:
-      type: object
-      properties:
-        code:
-          type: string
-        campus:
-          type: string
-          enum:
-            - legon
-            - accra
-            - distance
-      required:
-        - code
-        - campus
-    Course:
-      type: object
-      properties:
-        id:
-          type: string
-        code:
-          type: string
-        campus:
-          enum:
-            - legon
-            - accra
-            - distance
-          type: string
-      required:
-        - id
-        - code
-        - campus
-    UpdateCourseDto:
-      type: object
-      properties: {}
-    CreateStaffDto:
-      type: object
-      properties:
-        id:
-          type: string
-        surname:
-          type: string
-        othername:
-          type: string
-        email:
-          type: string
-        phone:
-          type: string
-        department:
-          type: string
-      required:
-        - id
-        - surname
-        - othername
-        - email
-        - phone
-        - department
-    Staff:
-      type: object
-      properties:
-        id:
-          type: string
-        surname:
-          type: string
-        othername:
-          type: string
-        email:
-          type: string
-        phone:
-          type: string
-        department:
-          type: string
-      required:
-        - id
-        - surname
-        - othername
-        - email
-        - phone
-        - department
-    UpdateStaffDto:
-      type: object
-      properties: {}
     CreateAllocationDto:
       type: object
       properties:
@@ -498,3 +658,228 @@ components:
     UpdateAllocationDto:
       type: object
       properties: {}
+    CreateStaffDto:
+      type: object
+      properties:
+        id:
+          type: string
+        surname:
+          type: string
+        othername:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        department:
+          type: string
+      required:
+        - id
+        - surname
+        - othername
+        - email
+        - phone
+        - department
+    Staff:
+      type: object
+      properties:
+        id:
+          type: string
+        surname:
+          type: string
+        othername:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        department:
+          type: string
+      required:
+        - id
+        - surname
+        - othername
+        - email
+        - phone
+        - department
+    UpdateStaffDto:
+      type: object
+      properties: {}
+    CreateCourseDto:
+      type: object
+      properties:
+        code:
+          type: string
+        campus:
+          type: string
+          enum:
+            - legon
+            - accra
+            - distance
+      required:
+        - code
+        - campus
+    Course:
+      type: object
+      properties:
+        id:
+          type: string
+        code:
+          type: string
+        campus:
+          enum:
+            - legon
+            - accra
+            - distance
+          type: string
+      required:
+        - id
+        - code
+        - campus
+    UpdateCourseDto:
+      type: object
+      properties: {}
+    CreateTicketDto:
+      type: object
+      properties:
+        description:
+          type: string
+        studentID:
+          type: string
+        status:
+          type: string
+          enum:
+            - created
+            - open
+            - investigating
+            - closed
+        allocationID:
+          type: string
+      required:
+        - studentID
+        - status
+        - allocationID
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        fullName:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        role:
+          enum:
+            - student
+            - staff
+            - admin
+          type: string
+      required:
+        - username
+        - password
+        - email
+        - phoneNumber
+        - role
+    Ticket:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        studentID:
+          type: string
+        status:
+          enum:
+            - created
+            - open
+            - investigating
+            - closed
+          type: string
+        courseId:
+          type: string
+        courseCode:
+          type: string
+        year:
+          type: string
+        semmester:
+          enum:
+            - 1
+            - 2
+          type: number
+        reporter:
+          $ref: '#/components/schemas/User'
+        assignee:
+          $ref: '#/components/schemas/User'
+      required:
+        - id
+        - studentID
+        - status
+        - courseId
+        - courseCode
+        - year
+        - semmester
+        - reporter
+        - assignee
+    UpdateTicketDto:
+      type: object
+      properties:
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+            - created
+            - open
+            - investigating
+            - closed
+        assignee:
+          type: string
+    SignInDto:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+    CreateUserDto:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        fullName:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        role:
+          enum:
+            - student
+            - staff
+            - admin
+          type: string
+      required:
+        - username
+        - password
+        - email
+        - phoneNumber
+        - role
+    UpdateUserDto:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string

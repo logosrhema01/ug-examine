@@ -7,7 +7,6 @@ export class Staff {
   @Column({ primary: true })
   id: string;
 
-  // [x]: CHnage to surnname and other name
   @Column()
   surname: string;
 

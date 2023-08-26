@@ -20,13 +20,13 @@ export class Allocation {
   @Column()
   year: number;
 
-  @Column()
+  @Column({ nullable: true })
   noStudents: number;
 
   @Column()
   semmester: Semmesters;
 
-  @Column()
+  @Column({ nullable: true })
   modeofExam: ModeOfExam;
 }
 

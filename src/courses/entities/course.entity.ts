@@ -1,7 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-// [x]: Move year, semmester, etc to assignments change to credit
-
 @Entity()
 export class Course {
   @PrimaryGeneratedColumn('uuid')

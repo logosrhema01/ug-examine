@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
+import { Module, forwardRef } from '@nestjs/common';
 import { AllocationsService } from './allocations.service';
 import { AllocationsController } from './allocations.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -14,7 +15,8 @@ import { TimetableModule } from 'src/timetable/timetable.module';
     TypeOrmModule.forFeature([Allocation]),
     StaffModule,
     CoursesModule,
-    TimetableModule,
+    forwardRef(() => TimetableModule),
   ],
+  exports: [AllocationsService],
 })
 export class AllocationsModule {}
