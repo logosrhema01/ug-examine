@@ -17,6 +17,9 @@ import { Course } from 'src/courses/entities/course.entity';
 import { TimetableService } from 'src/timetable/timetable.service';
 import { ExamType } from 'src/timetable/entities/timetable.entity';
 import { ParsedScrapedExamData } from 'src/timetable/dto/scraper.dto';
+import { NotifyService } from 'src/timetable/notify.service';
+import { Ticket } from 'src/tickets/entities/ticket.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class AllocationsService {
@@ -27,6 +30,8 @@ export class AllocationsService {
     private readonly _coursesService: CoursesService,
     @Inject(forwardRef(() => TimetableService))
     private readonly _timetableService: TimetableService,
+    @Inject(forwardRef(() => NotifyService))
+    private readonly _notifyService: NotifyService,
   ) {}
   async create(createAllocationDto: CreateAllocationDto) {
     const staffExists = await this._staffService.findOne(
@@ -201,6 +206,10 @@ export class AllocationsService {
       updateFields['course'] = courseExists;
     }
     return this._allocationRepository.update({ id }, updateFields);
+  }
+
+  async notifyAssignee(assignee: User, ticket: Ticket) {
+    await this._notifyService.notifyAssignee(assignee, ticket);
   }
 
   remove(id: string) {
