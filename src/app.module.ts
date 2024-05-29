@@ -48,6 +48,10 @@ import { AdminUserInitializer } from './admin-user-initializer.provider';
       url: process.env.PSQL_DATABASE_URL,
       synchronize: true,
       autoLoadEntities: true,
+      ssl: {
+        rejectUnauthorized: true,
+        ca: process.env.PSQL_CA_CERT,
+      },
     }),
     CaslModule,
     CoursesModule,
